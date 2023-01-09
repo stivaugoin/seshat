@@ -8,12 +8,13 @@ datasource db {
 }
 
 model Book {
-    id        String   @id @map("_id")
-    createdAt DateTime @default(now())
-
+    id            String   @id @default(cuid()) @map("_id")
+    authors       String[]
+    description   String?
+    isbn          String   @unique
+    pages         Int?
     title         String
-    author        String
-    note          Int?
-    yearPublished Int?
-    yearRead      Int?
+    publishedYear Int?
+
+    createdAt DateTime @default(now())
 }
