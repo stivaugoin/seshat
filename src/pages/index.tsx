@@ -1,13 +1,14 @@
-import { Container, Header, Title } from "@mantine/core";
+import { Stack, Title } from "@mantine/core";
 import { type NextPage } from "next";
+import { Layout } from "../components/Layout";
 
 const Home: NextPage = () => {
   return (
-    <Header height={60}>
-      <Container sx={{ display: "flex", alignItems: "center", height: "100%" }}>
-        <Title size={24}>Seshat - My virtual bookshelf</Title>
-      </Container>
-    </Header>
+    <Layout py="xl">
+      <Stack>
+        <Title>Home</Title>
+      </Stack>
+    </Layout>
   );
 };
 
