@@ -13,8 +13,10 @@ model Book {
     description   String?
     isbn          String   @unique
     pages         Int?
-    title         String
     publishedYear Int?
+    rating        Int?
+    readYear      Int?
+    title         String
 
     createdAt DateTime @default(now())
 }
