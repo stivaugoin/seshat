@@ -57,8 +57,9 @@ export function Layout({ children, ...containerProps }: Props) {
 }
 
 function isActive(href: string, pathname: string) {
-  if (href === "/") return pathname === href;
-  return pathname.startsWith(href);
+  console.log({ href, pathname });
+  if (pathname === "/[isbn]" && href === "/") return true;
+  return pathname === href;
 }
 
 const useStyles = createStyles((theme) => ({
