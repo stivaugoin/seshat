@@ -48,8 +48,8 @@ export function Layout({ children, ...containerProps }: Props) {
 
   return (
     <>
-      <Header height={60} pos="sticky" zIndex={900}>
-        <Container className={classes.header}>
+      <Header className={classes.header} height={60} pos="sticky" zIndex={900}>
+        <Container className={classes.container}>
           <Group>
             <Text component={Link} href="/" size="lg">
               Seshat
@@ -86,14 +86,15 @@ function isActive(href: string, pathname: string) {
 }
 
 const useStyles = createStyles((theme) => ({
-  header: {
-    backgroundColor: theme.colors.dark[9],
+  container: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     height: "100%",
   },
-
+  header: {
+    backgroundColor: theme.colors.dark[9],
+  },
   link: {
     display: "block",
     lineHeight: 1,
