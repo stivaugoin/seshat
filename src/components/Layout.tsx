@@ -1,11 +1,16 @@
 import {
   Badge,
+  Box,
+  Button,
   Container,
   createStyles,
+  Flex,
   Group,
   Header,
+  Loader,
   Text,
 } from "@mantine/core";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { type ComponentProps } from "react";
@@ -22,6 +27,24 @@ const LINKS = {
 export function Layout({ children, ...containerProps }: Props) {
   const { classes, cx } = useStyles();
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <Box pos="absolute" top={0} left={0} right={0} bottom={0}>
+        <Flex h="100%" w="100%" align="center" justify="center">
+          <Loader size="xl" />
+        </Flex>
+      </Box>
+    );
+  }
+
+  if (!session)
+    return (
+      <Button component={Link} href="/api/auth/signin">
+        Sign in
+      </Button>
+    );
 
   return (
     <>
@@ -57,7 +80,6 @@ export function Layout({ children, ...containerProps }: Props) {
 }
 
 function isActive(href: string, pathname: string) {
-  console.log({ href, pathname });
   if (pathname === "/[isbn]" && href === "/") return true;
   return pathname === href;
 }

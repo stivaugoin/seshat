@@ -1,4 +1,5 @@
 import { MantineProvider } from "@mantine/core";
+import { SessionProvider } from "next-auth/react";
 import { type AppProps } from "next/app";
 import Head from "next/head";
 import { api } from "../utils/api";
@@ -18,16 +19,18 @@ function App(props: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <MantineProvider
-        withGlobalStyles
-        withNormalizeCSS
-        theme={{
-          colorScheme: "dark",
-          primaryColor: "yellow",
-        }}
-      >
-        <Component {...pageProps} />
-      </MantineProvider>
+      <SessionProvider session={pageProps.session}>
+        <MantineProvider
+          withGlobalStyles
+          withNormalizeCSS
+          theme={{
+            colorScheme: "dark",
+            primaryColor: "yellow",
+          }}
+        >
+          <Component {...pageProps} />
+        </MantineProvider>
+      </SessionProvider>
     </>
   );
 }

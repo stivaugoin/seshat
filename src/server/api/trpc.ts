@@ -1,18 +1,18 @@
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { unstable_getServerSession } from "next-auth";
 import superjson from "superjson";
+import { authOptions } from "../../pages/api/auth/[...nextauth]";
 import { prisma } from "../db";
 
-type CreateContextOptions = Record<string, never>;
+export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
+  const { req, res } = _opts;
+  const session = await unstable_getServerSession(req, res, authOptions);
 
-const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
   return {
     prisma,
+    session,
   };
-};
-
-export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
-  return await createInnerTRPCContext({});
 };
 
 const t = initTRPC
@@ -24,6 +24,17 @@ const t = initTRPC
     },
   });
 
+const isAuthenticated = t.middleware(({ ctx, next }) => {
+  if (!ctx.session?.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  return next({
+    ctx: {
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
 export const createTRPCRouter = t.router;
 
 export const publicProcedure = t.procedure;
+export const privateProcedure = t.procedure.use(isAuthenticated);

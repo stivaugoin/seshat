@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "./trpc";
+import { createTRPCRouter, privateProcedure } from "./trpc";
 
 export const appRouter = createTRPCRouter({
-  create: publicProcedure
+  create: privateProcedure
     .input(
       z.object({
         authors: z.array(z.string()),
@@ -21,7 +21,7 @@ export const appRouter = createTRPCRouter({
       return book;
     }),
 
-  getBook: publicProcedure
+  getBook: privateProcedure
     .input(z.object({ isbn: z.string() }))
     .query(({ ctx, input }) => {
       const book = ctx.prisma.book.findUniqueOrThrow({
@@ -31,11 +31,11 @@ export const appRouter = createTRPCRouter({
       return book;
     }),
 
-  getBooks: publicProcedure.query(({ ctx }) => {
+  getBooks: privateProcedure.query(({ ctx }) => {
     return ctx.prisma.book.findMany({ orderBy: { createdAt: "desc" } });
   }),
 
-  search: publicProcedure
+  search: privateProcedure
     .input(z.object({ isbn: z.string() }))
     .output(
       z.object({
@@ -117,7 +117,7 @@ export const appRouter = createTRPCRouter({
       return { book: newBook, status: "success", source: "googleApi" };
     }),
 
-  update: publicProcedure
+  update: privateProcedure
     .input(
       z.object({
         isbn: z.string(),
