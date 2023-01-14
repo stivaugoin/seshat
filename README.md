@@ -14,7 +14,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  Seshat - My virtual bookshelf
+  Seshat - Virtual bookshelf
   <br />
   <br />
 </div>
