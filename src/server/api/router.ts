@@ -1,18 +1,18 @@
 import { z } from "zod";
 import { createTRPCRouter, privateProcedure } from "./trpc";
 
+const createSchema = z.object({
+  authors: z.array(z.string()),
+  description: z.string().optional().nullable(),
+  isbn: z.string(),
+  pages: z.number().optional().nullable(),
+  publishedYear: z.number().optional().nullable(),
+  title: z.string(),
+});
+
 export const appRouter = createTRPCRouter({
   create: privateProcedure
-    .input(
-      z.object({
-        authors: z.array(z.string()),
-        description: z.string().optional().nullable(),
-        isbn: z.string(),
-        pages: z.number().optional().nullable(),
-        publishedYear: z.number().optional().nullable(),
-        title: z.string(),
-      })
-    )
+    .input(createSchema)
     .mutation(async ({ ctx, input }) => {
       const book = ctx.prisma.book.create({
         data: input,
@@ -55,7 +55,9 @@ export const appRouter = createTRPCRouter({
 
       // 2. Filter results to keep only books with ISBN and keep only 10 first results
       const resultWithIsbn = result.items
-        .filter((item) => Boolean(getIsbnFromGoogleApiBook(item)))
+        .filter(
+          (item) => createSchema.safeParse(formatGoogleApiBook(item)).success
+        )
         .slice(0, 10);
 
       // 3. Find books in database with these ISBNs
@@ -66,7 +68,7 @@ export const appRouter = createTRPCRouter({
       });
 
       // 4. Return books with source
-      const books = result.items.map((item) => {
+      const books = resultWithIsbn.map((item) => {
         const isbn = getIsbnFromGoogleApiBook(item) as string;
 
         const bookInDatabase = booksInDatabase.find(
@@ -81,16 +83,7 @@ export const appRouter = createTRPCRouter({
         }
 
         return {
-          book: {
-            title: item.volumeInfo.title,
-            authors: item.volumeInfo.authors,
-            description: item.volumeInfo.description,
-            isbn,
-            pages: item.volumeInfo.pageCount,
-            publishedYear: new Date(
-              item.volumeInfo.publishedDate
-            ).getFullYear(),
-          },
+          book: formatGoogleApiBook(item),
           source: "googleApi" as const,
         };
       });
@@ -142,4 +135,15 @@ function getIsbnFromGoogleApiBook(item: GoogleApiBook) {
   return item.volumeInfo.industryIdentifiers.find(
     ({ type }) => type === "ISBN_13"
   )?.identifier;
+}
+
+function formatGoogleApiBook(item: GoogleApiBook) {
+  return {
+    title: item.volumeInfo.title,
+    authors: item.volumeInfo.authors,
+    description: item.volumeInfo.description,
+    isbn: getIsbnFromGoogleApiBook(item),
+    pages: item.volumeInfo.pageCount,
+    publishedYear: new Date(item.volumeInfo.publishedDate).getFullYear(),
+  };
 }
