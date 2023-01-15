@@ -36,85 +36,66 @@ export const appRouter = createTRPCRouter({
   }),
 
   search: privateProcedure
-    .input(z.object({ isbn: z.string() }))
-    .output(
-      z.object({
-        book: z
-          .union([
-            z.object({
-              id: z.string().optional().nullable(),
-              title: z.string(),
-              authors: z.array(z.string()),
-              description: z.string().optional().nullable(),
-              isbn: z.string(),
-              pages: z.number().optional().nullable(),
-              publishedYear: z.number().optional().nullable(),
-              rating: z.number().optional().nullable(),
-              readYear: z.number().optional().nullable(),
-            }),
-            z.null(),
-          ])
-          .optional(),
-        source: z.union([z.literal("database"), z.literal("googleApi")]),
-        status: z.union([
-          z.literal("success"),
-          z.literal("notFound"),
-          z.literal("tooManyResults"),
-        ]),
-      })
+    .input(
+      z.union([z.object({ isbn: z.string() }), z.object({ query: z.string() })])
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("input", input);
-      // 1. Search in database
-      const book = await ctx.prisma.book.findUnique({
-        where: { isbn: input.isbn },
-      });
-      console.log("book", book);
+      // 1. Search in Google API
+      // TODO: Add language restriction to improve results
 
-      if (book?.id) {
-        return {
-          book,
-          source: "database",
-          status: "success",
-        };
-      }
-
-      // 2. Search in Google API
-      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${input.isbn}&langRestrict=fr`;
+      const q = "isbn" in input ? `isbn:${input.isbn}` : input.query;
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${q}&fields=items(volumeInfo)`;
       const result: GoogleApiResponse = await fetch(url).then((res) =>
         res.json()
       );
 
-      console.log("result", result);
-
       if (!result || !result.items || result.items.length === 0) {
-        return {
-          book: null,
-          source: "googleApi",
-          status: "notFound",
-        };
+        return [];
       }
 
-      if (result.items.length > 1) {
+      // 2. Filter results to keep only books with ISBN and keep only 10 first results
+      const resultWithIsbn = result.items
+        .filter((item) => Boolean(getIsbnFromGoogleApiBook(item)))
+        .slice(0, 10);
+
+      // 3. Find books in database with these ISBNs
+      const allIsbn = resultWithIsbn.map(getIsbnFromGoogleApiBook) as string[];
+
+      const booksInDatabase = await ctx.prisma.book.findMany({
+        where: { isbn: { in: allIsbn } },
+      });
+
+      // 4. Return books with source
+      const books = result.items.map((item) => {
+        const isbn = getIsbnFromGoogleApiBook(item) as string;
+
+        const bookInDatabase = booksInDatabase.find(
+          (book) => book.isbn === isbn
+        );
+
+        if (bookInDatabase) {
+          return {
+            book: bookInDatabase,
+            source: "database" as const,
+          };
+        }
+
         return {
-          book: null,
-          source: "googleApi",
-          status: "tooManyResults",
+          book: {
+            title: item.volumeInfo.title,
+            authors: item.volumeInfo.authors,
+            description: item.volumeInfo.description,
+            isbn,
+            pages: item.volumeInfo.pageCount,
+            publishedYear: new Date(
+              item.volumeInfo.publishedDate
+            ).getFullYear(),
+          },
+          source: "googleApi" as const,
         };
-      }
+      });
 
-      const item = result.items[0] as GoogleApiBook;
-
-      const newBook = {
-        title: item.volumeInfo.title,
-        authors: item.volumeInfo.authors,
-        description: item.volumeInfo.description,
-        isbn: input.isbn,
-        pages: item.volumeInfo.pageCount,
-        publishedYear: new Date(item.volumeInfo.publishedDate).getFullYear(),
-      };
-
-      return { book: newBook, status: "success", source: "googleApi" };
+      return books;
     }),
 
   update: privateProcedure
@@ -156,3 +137,9 @@ type GoogleApiBook = {
     publishedDate: string;
   };
 };
+
+function getIsbnFromGoogleApiBook(item: GoogleApiBook) {
+  return item.volumeInfo.industryIdentifiers.find(
+    ({ type }) => type === "ISBN_13"
+  )?.identifier;
+}

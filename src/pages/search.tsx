@@ -13,8 +13,11 @@ const Home: NextPage = () => {
 
   const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const isbn = e.currentTarget.search.value as string;
-    await search.mutateAsync({ isbn });
+    const value = e.currentTarget.search.value as string;
+
+    await search.mutateAsync(
+      isIsbn(value) ? { isbn: value } : { query: value }
+    );
   };
 
   return (
@@ -31,7 +34,8 @@ const Home: NextPage = () => {
 
         {search.isLoading && <Loader />}
         {search.error && <AlertError message={search.error.message} />}
-        {search.data && <Result data={search.data} />}
+        {search.data?.length === 0 && <AlertError message="No results" />}
+        {search.data?.length && <Result data={search.data} />}
       </Stack>
     </Layout>
   );
@@ -43,11 +47,12 @@ function Result({ data }: { data: inferRouterOutputs<AppRouter>["search"] }) {
   const router = useRouter();
   const addBook = api.create.useMutation();
 
-  const handleClickAdd = async () => {
-    if (!data.book) return;
-    const { book } = data;
+  const handleClickAdd = async ({ isbn }: { isbn: string }) => {
+    if (!data || data.length === 0) return;
+    const book = data.find(({ book }) => book.isbn === isbn)?.book;
+    if (!book) return;
 
-    const { isbn } = await addBook.mutateAsync({
+    const newBook = await addBook.mutateAsync({
       authors: book.authors,
       description: book.description,
       isbn: book.isbn,
@@ -56,38 +61,37 @@ function Result({ data }: { data: inferRouterOutputs<AppRouter>["search"] }) {
       title: book.title,
     });
 
-    router.push(`/book/${isbn}`);
+    router.push(`/${newBook.isbn}`);
   };
-
-  if (data.status === "notFound") {
-    return <AlertError message="Book not found" />;
-  }
-
-  if (data.status === "tooManyResults") {
-    return <AlertError message="Too many results" />;
-  }
-
-  if (!data.book) {
-    return <AlertError message="Something went wrong" />;
-  }
 
   return (
     <>
       {addBook.error && <AlertError message={addBook.error.message} />}
 
-      <Code block>{JSON.stringify(data, null, 4)}</Code>
+      {data.map(({ book, source }) => (
+        <Stack key={book.isbn}>
+          <Code block>{JSON.stringify(book, null, 4)}</Code>
 
-      {data.source === "database" && (
-        <Button onClick={() => router.push(`/books/${data.book?.isbn}`)}>
-          View in bookshelf
-        </Button>
-      )}
+          {source === "database" && (
+            <Button onClick={() => router.push(`/${book?.isbn}`)}>
+              View in bookshelf
+            </Button>
+          )}
 
-      {data.source === "googleApi" && (
-        <Button loading={addBook.isLoading} onClick={handleClickAdd}>
-          Add to bookshelf
-        </Button>
-      )}
+          {source === "googleApi" && (
+            <Button
+              loading={addBook.isLoading}
+              onClick={() => handleClickAdd({ isbn: book.isbn })}
+            >
+              Add to bookshelf
+            </Button>
+          )}
+        </Stack>
+      ))}
     </>
   );
+}
+
+function isIsbn(value: string) {
+  return value.length === 13 && !isNaN(Number(value));
 }
