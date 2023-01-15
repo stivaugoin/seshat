@@ -39,11 +39,6 @@ export function Layout({ children, ...containerProps }: Props) {
   }
 
   if (!session) router.push("/api/auth/signin");
-  // return (
-  //   <Button component={Link} href="/api/auth/signin">
-  //     Sign in
-  //   </Button>
-  // );
 
   return (
     <>
