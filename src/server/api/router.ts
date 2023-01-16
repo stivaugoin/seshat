@@ -42,7 +42,6 @@ export const appRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // 1. Search in Google API
       // TODO: Add language restriction to improve results
-
       const q = "isbn" in input ? `isbn:${input.isbn}` : input.query;
       const url = `https://www.googleapis.com/books/v1/volumes?q=${q}&fields=items(volumeInfo)`;
       const result: GoogleApiResponse = await fetch(url).then((res) =>
@@ -142,7 +141,7 @@ function formatGoogleApiBook(item: GoogleApiBook) {
     title: item.volumeInfo.title,
     authors: item.volumeInfo.authors,
     description: item.volumeInfo.description,
-    isbn: getIsbnFromGoogleApiBook(item),
+    isbn: getIsbnFromGoogleApiBook(item) as string,
     pages: item.volumeInfo.pageCount,
     publishedYear: new Date(item.volumeInfo.publishedDate).getFullYear(),
   };
