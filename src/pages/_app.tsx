@@ -1,4 +1,5 @@
 import { MantineProvider } from "@mantine/core";
+import { NotificationsProvider } from "@mantine/notifications";
 import { SessionProvider } from "next-auth/react";
 import { type AppProps } from "next/app";
 import Head from "next/head";
@@ -28,7 +29,9 @@ function App(props: AppProps) {
             primaryColor: "yellow",
           }}
         >
-          <Component {...pageProps} />
+          <NotificationsProvider>
+            <Component {...pageProps} />
+          </NotificationsProvider>
         </MantineProvider>
       </SessionProvider>
     </>
