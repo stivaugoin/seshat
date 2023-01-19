@@ -131,7 +131,7 @@ type GoogleApiBook = {
 };
 
 function getIsbnFromGoogleApiBook(item: GoogleApiBook) {
-  return item.volumeInfo.industryIdentifiers.find(
+  return item.volumeInfo.industryIdentifiers?.find(
     ({ type }) => type === "ISBN_13"
   )?.identifier;
 }
