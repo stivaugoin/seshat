@@ -1,4 +1,5 @@
 import { Button, Code, Loader, Stack, TextInput } from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
 import type { inferRouterOutputs } from "@trpc/server";
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
@@ -59,6 +60,12 @@ function Result({ data }: { data: inferRouterOutputs<AppRouter>["search"] }) {
       pages: book.pages,
       publishedYear: book.publishedYear,
       title: book.title,
+    });
+
+    showNotification({
+      color: "green",
+      message: `${newBook.title} has been added to your bookshelf`,
+      title: "Book added",
     });
 
     router.push(`/${newBook.isbn}`);

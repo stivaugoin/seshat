@@ -9,6 +9,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { showNotification } from "@mantine/notifications";
 import type { Book } from "@prisma/client";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../server/api/router";
@@ -29,6 +30,11 @@ export function BookForm({
   async function handleSubmit(values: Book) {
     await update.mutateAsync(values);
     apiCtx.getBook.invalidate({ isbn: values.isbn });
+    showNotification({
+      color: "green",
+      message: "Book updated successfully",
+      title: "Book updated",
+    });
   }
 
   return (
