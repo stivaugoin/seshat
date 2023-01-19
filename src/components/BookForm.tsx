@@ -1,5 +1,6 @@
 import {
   Button,
+  Divider,
   Group,
   MultiSelect,
   NumberInput,
@@ -39,7 +40,7 @@ export function BookForm({
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
-      <Stack spacing="xl">
+      <Stack>
         <TextInput
           disabled
           label="Title"
@@ -91,26 +92,42 @@ export function BookForm({
           />
         </Group>
 
-        <Group grow>
-          <NumberInput
-            label="Reading year"
-            max={new Date().getFullYear()}
-            name="readYear"
-            {...form.getInputProps("readYear")}
-          />
+        <Divider />
 
+        <NumberInput
+          label="Reading year"
+          max={new Date().getFullYear()}
+          name="readYear"
+          {...form.getInputProps("readYear")}
+        />
+
+        <Stack spacing={4}>
           <Rating
             name="rating"
             size="lg"
-            style={{ justifyContent: "center" }}
+            m="auto"
             {...form.getInputProps("rating")}
           />
-        </Group>
+          {(form.values.rating || 0) > 0 && (
+            <Group sx={{ justifyContent: "center" }}>
+              <Button
+                color="dark"
+                onClick={() => form.setFieldValue("rating", 0)}
+                size="xs"
+                variant="subtle"
+              >
+                Clear
+              </Button>
+            </Group>
+          )}
+        </Stack>
+      </Stack>
 
-        <Button loading={update.isLoading} type="submit">
+      <Group grow>
+        <Button loading={update.isLoading} mt={32} type="submit">
           Save
         </Button>
-      </Stack>
+      </Group>
     </form>
   );
 }
