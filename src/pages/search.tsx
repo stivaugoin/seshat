@@ -35,7 +35,7 @@ const Home: NextPage = () => {
         {search.isLoading && <Loader />}
         {search.error && <AlertError message={search.error.message} />}
         {search.data?.length === 0 && <AlertError message="No results" />}
-        {search.data?.length && <Result data={search.data} />}
+        {search.data?.length ? <Result data={search.data} /> : ""}
       </Stack>
     </Layout>
   );
