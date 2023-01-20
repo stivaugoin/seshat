@@ -1,17 +1,9 @@
-import {
-  Badge,
-  Divider,
-  Group,
-  Loader,
-  Rating,
-  Stack,
-  Text,
-  Title,
-  UnstyledButton,
-} from "@mantine/core";
+import { Divider, Loader, Stack, Title, UnstyledButton } from "@mantine/core";
 import type { NextPage } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
 import { AlertError } from "../components/AlertError";
+import { BookView } from "../components/BookView";
 import { Layout } from "../components/Layout";
 import { api } from "../utils/api";
 
@@ -28,33 +20,13 @@ const BooksPage: NextPage = () => {
 
         <Stack spacing="md">
           {query.data?.map((book, index) => (
-            <>
-              <Link href={`/${book.isbn}`} key={book.isbn} passHref>
-                <UnstyledButton>
-                  <Stack spacing="sm">
-                    <Text weight="bold">{book.title}</Text>
-
-                    <Group>
-                      {book.authors.map((author) => (
-                        <Badge color="yellow" key={author} size="sm">
-                          {author}
-                        </Badge>
-                      ))}
-                    </Group>
-
-                    {book.rating ? (
-                      <Rating readOnly value={book.rating} size="sm" />
-                    ) : (
-                      <Text color="dimmed" italic size="sm">
-                        No rating
-                      </Text>
-                    )}
-                  </Stack>
-                </UnstyledButton>
-              </Link>
+            <Fragment key={book.id}>
+              <UnstyledButton component={Link} href={`/${book.isbn}`} w="100%">
+                <BookView book={book} />
+              </UnstyledButton>
 
               {index < query.data.length - 1 && <Divider />}
-            </>
+            </Fragment>
           ))}
         </Stack>
       </Stack>
