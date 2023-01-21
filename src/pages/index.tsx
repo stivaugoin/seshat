@@ -12,23 +12,21 @@ const BooksPage: NextPage = () => {
 
   return (
     <Layout py="xl">
-      <Stack spacing="xl">
-        <Title>My books</Title>
+      <Stack>
+        <Title mb="xl">My books</Title>
 
         {query.isLoading && <Loader />}
         {query.error && <AlertError message={query.error.message} />}
 
-        <Stack spacing="md">
-          {query.data?.map((book, index) => (
-            <Fragment key={book.id}>
-              <UnstyledButton component={Link} href={`/${book.isbn}`} w="100%">
-                <BookView book={book} />
-              </UnstyledButton>
+        {query.data?.map((book, index) => (
+          <Fragment key={book.id}>
+            <UnstyledButton component={Link} href={`/${book.isbn}`} w="100%">
+              <BookView book={book} />
+            </UnstyledButton>
 
-              {index < query.data.length - 1 && <Divider />}
-            </Fragment>
-          ))}
-        </Stack>
+            {index < query.data.length - 1 && <Divider />}
+          </Fragment>
+        ))}
       </Stack>
     </Layout>
   );
