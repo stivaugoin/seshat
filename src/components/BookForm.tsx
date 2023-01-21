@@ -29,7 +29,7 @@ export function BookForm({
   });
 
   async function handleSubmit(values: Book) {
-    await update.mutateAsync(values);
+    await update.mutateAsync({ ...values, readYear: values.readYear || null });
     apiCtx.getBook.invalidate({ isbn: values.isbn });
     showNotification({
       color: "green",
