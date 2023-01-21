@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, privateProcedure } from "./trpc";
+import { createTRPCRouter, privateProcedure } from ".";
 
 const createSchema = z.object({
   authors: z.array(z.string()),

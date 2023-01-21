@@ -3,7 +3,7 @@ import { NotificationsProvider } from "@mantine/notifications";
 import { SessionProvider } from "next-auth/react";
 import { type AppProps } from "next/app";
 import Head from "next/head";
-import { api } from "../utils/api";
+import { trpc } from "../utils/trpc";
 
 function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -38,4 +38,4 @@ function App(props: AppProps) {
   );
 }
 
-export default api.withTRPC(App);
+export default trpc.withTRPC(App);

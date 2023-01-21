@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { unstable_getServerSession } from "next-auth";
 import superjson from "superjson";
+import { env } from "../../env/server.mjs";
 import { authOptions } from "../../pages/api/auth/[...nextauth]";
 import { prisma } from "../db";
 
@@ -25,7 +26,7 @@ const t = initTRPC
   });
 
 const isAuthenticated = t.middleware(({ ctx, next }) => {
-  if (process.env.NODE_ENV === "development")
+  if (env.NODE_ENV === "development")
     return next({ ctx: { session: { ...ctx.session, user: { id: 1 } } } });
 
   if (!ctx.session?.user) throw new TRPCError({ code: "UNAUTHORIZED" });

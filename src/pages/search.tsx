@@ -1,17 +1,16 @@
 import { Button, Divider, Loader, Stack, TextInput } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import type { inferRouterOutputs } from "@trpc/server";
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
 import type { FormEvent } from "react";
 import { AlertError } from "../components/AlertError";
 import { BookView } from "../components/BookView";
 import { Layout } from "../components/Layout";
-import type { AppRouter } from "../server/api/router";
-import { api } from "../utils/api";
+import type { RouterOutputs } from "../utils/trpc";
+import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
-  const search = api.search.useMutation();
+  const search = trpc.search.useMutation();
 
   const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,9 +44,9 @@ const Home: NextPage = () => {
 
 export default Home;
 
-function Result({ data }: { data: inferRouterOutputs<AppRouter>["search"] }) {
+function Result({ data }: { data: RouterOutputs["search"] }) {
   const router = useRouter();
-  const addBook = api.create.useMutation();
+  const addBook = trpc.create.useMutation();
 
   const handleClickAdd = async ({ isbn }: { isbn: string }) => {
     if (!data || data.length === 0) return;

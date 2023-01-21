@@ -1,10 +1,9 @@
 import { Badge, Group, Rating, Stack, Text, Title } from "@mantine/core";
 import type { Book } from "@prisma/client";
-import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "../server/api/router";
+import type { RouterOutputs } from "../utils/trpc";
 
 interface Props {
-  book: Book | inferRouterOutputs<AppRouter>["search"][0]["book"];
+  book: Book | RouterOutputs["search"][0]["book"];
 }
 
 export function BookView({ book }: Props) {

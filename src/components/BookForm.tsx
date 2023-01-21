@@ -12,17 +12,12 @@ import {
 import { useForm } from "@mantine/form";
 import { showNotification } from "@mantine/notifications";
 import type { Book } from "@prisma/client";
-import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "../server/api/router";
-import { api } from "../utils/api";
+import type { RouterOutputs } from "../utils/trpc";
+import { trpc } from "../utils/trpc";
 
-export function BookForm({
-  data,
-}: {
-  data: inferRouterOutputs<AppRouter>["getBook"];
-}) {
-  const update = api.update.useMutation();
-  const apiCtx = api.useContext();
+export function BookForm({ data }: { data: RouterOutputs["getBook"] }) {
+  const update = trpc.update.useMutation();
+  const apiCtx = trpc.useContext();
 
   const form = useForm({
     initialValues: data,

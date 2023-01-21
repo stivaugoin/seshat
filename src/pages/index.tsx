@@ -5,10 +5,10 @@ import { Fragment } from "react";
 import { AlertError } from "../components/AlertError";
 import { BookView } from "../components/BookView";
 import { Layout } from "../components/Layout";
-import { api } from "../utils/api";
+import { trpc } from "../utils/trpc";
 
 const BooksPage: NextPage = () => {
-  const query = api.getBooks.useQuery();
+  const query = trpc.getBooks.useQuery();
 
   return (
     <Layout py="xl">

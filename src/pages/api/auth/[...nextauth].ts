@@ -2,6 +2,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import type { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth";
 import EmailProvider from "next-auth/providers/email";
+import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db";
 
 export const authOptions: NextAuthOptions = {
@@ -9,20 +10,20 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ account }) {
       if (!account?.providerAccountId) return false;
-      const authorizedEmails = process.env.AUTHORIZED_EMAILS?.split(",");
+      const authorizedEmails = env.AUTHORIZED_EMAILS?.split(",");
       if (authorizedEmails?.includes(account?.providerAccountId)) return true;
       return false;
     },
   },
   providers: [
     EmailProvider({
-      from: process.env.EMAIL_FROM,
+      from: env.EMAIL_FROM,
       server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: process.env.EMAIL_SERVER_PORT,
+        host: env.EMAIL_SERVER_HOST,
+        port: env.EMAIL_SERVER_PORT,
         auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
+          user: env.EMAIL_SERVER_USER,
+          pass: env.EMAIL_SERVER_PASSWORD,
         },
       },
     }),

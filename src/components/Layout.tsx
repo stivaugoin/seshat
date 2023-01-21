@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { type ComponentProps } from "react";
+import { env } from "../env/client.mjs";
 
 interface Props extends ComponentProps<typeof Container> {
   children: React.ReactNode;
@@ -38,7 +39,7 @@ export function Layout({ children, ...containerProps }: Props) {
     );
   }
 
-  if (process.env.NODE_ENV !== "development" && !session)
+  if (env.NODE_ENV !== "development" && !session)
     router.push("/api/auth/signin");
 
   return (

@@ -4,13 +4,13 @@ import { useRouter } from "next/router";
 import { AlertError } from "../components/AlertError";
 import { BookForm } from "../components/BookForm";
 import { Layout } from "../components/Layout";
-import { api } from "../utils/api";
+import { trpc } from "../utils/trpc";
 
 const BookISBNPage: NextPage = () => {
   const router = useRouter();
   const isbn = router.query.isbn as string;
 
-  const query = api.getBook.useQuery({ isbn }, { enabled: Boolean(isbn) });
+  const query = trpc.getBook.useQuery({ isbn }, { enabled: Boolean(isbn) });
 
   return (
     <Layout py="xl">
