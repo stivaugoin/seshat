@@ -26,7 +26,7 @@ function App(props: AppProps) {
           withNormalizeCSS
           theme={{
             colorScheme: "dark",
-            primaryColor: "yellow",
+            primaryColor: "cyan",
           }}
         >
           <NotificationsProvider>

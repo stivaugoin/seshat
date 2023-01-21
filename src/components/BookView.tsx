@@ -10,11 +10,13 @@ interface Props {
 export function BookView({ book }: Props) {
   return (
     <Stack spacing="sm">
-      <Title order={3}>{book.title}</Title>
+      <Title color="cyan" order={3}>
+        {book.title}
+      </Title>
 
       <Group spacing="xs">
         {book.authors.map((author) => (
-          <Badge color="gray" variant="outline" key={author} radius="xs">
+          <Badge color="cyan" key={author} variant="light">
             {author}
           </Badge>
         ))}
