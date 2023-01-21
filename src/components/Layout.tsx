@@ -38,7 +38,8 @@ export function Layout({ children, ...containerProps }: Props) {
     );
   }
 
-  if (!session) router.push("/api/auth/signin");
+  if (process.env.NODE_ENV !== "development" && !session)
+    router.push("/api/auth/signin");
 
   return (
     <>
